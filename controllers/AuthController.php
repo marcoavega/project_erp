@@ -1,9 +1,11 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 
-class AuthController{
+class AuthController
+{
 
-    public function register(){
+    public function register()
+    {
 
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -23,12 +25,12 @@ class AuthController{
                 exit();
             }
 
-            if (empty($email)){
+            if (empty($email)) {
                 $_SESSION['error'] = "El correo electronico es requerido.";
                 error_log("Error de sesión: " . $_SESSION['error']);
                 header("Location: " . BASE_URL . "auth/register/");
                 exit();
-            } elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION['error'] = "El correo electronico no es valido.";
                 error_log("Error de sesión: " . $_SESSION['error']);
                 header("Location: " . BASE_URL . "auth/register/");
@@ -73,15 +75,10 @@ class AuthController{
                 header("Location: " . BASE_URL . "auth/register");
                 exit();
             }
-            
-            
-
         } else {
 
             include __DIR__ . '/../views/pages/register.php';
-
         }
-
     }
 
 
@@ -107,7 +104,7 @@ class AuthController{
                 $_SESSION['error'] = "El nombre de usuario es obligatorio";
                 // Si el nombre de usuario está vacío, se almacena un mensaje de error en la sesión.
                 // Esto permite mostrar el error en la vista sin perder los datos ingresados.
-                error_log("Error de sesión: " . $_SESSION['error']);                // Se registra el error en el log de errores del servidor.
+                error_log("Error de sesión: " . $_SESSION['error']); // Se registra el error en el log de errores del servidor.
                 // "error_log()" es útil para depurar y rastrear problemas en el código.
                 header("Location: " . BASE_URL . "auth/login/");
                 // Se redirige al usuario a la página de registro para corregir el error.
@@ -127,7 +124,6 @@ class AuthController{
                 header("Location: " . BASE_URL . "auth/login/");
                 exit();
             }
-
 
             // Instanciar el modelo User para autenticar al usuario.
             $userModel = new User();
@@ -163,7 +159,6 @@ class AuthController{
                 header("Location: " . BASE_URL . "auth/login/");
                 exit();
             }
-
         } else {
             // Si la solicitud no es POST, es decir, es GET:
             include __DIR__ . '/../views/pages/login.php';
@@ -172,37 +167,36 @@ class AuthController{
     }
 
 
-    public function logout() {
+    public function logout()
+    {
         // Asegurarse de que la sesión esté activa
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        
+
         // Vaciar todas las variables de sesión
         $_SESSION = array();
-        
+
         // Si la sesión utiliza cookies, eliminamos la cookie
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params(); // Obtenemos los parámetros de la cookie.
             // La función setcookie con un tiempo en el pasado elimina la cookie.
             setcookie(
-                session_name(), 
-                '', 
-                time() - 42000, 
-                $params["path"], 
-                $params["domain"], 
-                $params["secure"], 
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
                 $params["httponly"]
             );
         }
-        
+
         // Destruir la sesión
         session_destroy();
-        
+
         // Redirigir al usuario al formulario de login
         header("Location: " . BASE_URL . "auth/login/");
         exit();
     }
-    
-
 }

@@ -1,28 +1,23 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleSwitch = document.getElementById('themeToggleSwitch');
-    const htmlElement = document.documentElement; // Apunta al <html>
-    
-    // Recuperar el tema guardado en localStorage, o usar 'light' por defecto.
-    let currentTheme = localStorage.getItem('theme') || 'light';
-    htmlElement.setAttribute('data-bs-theme', currentTheme);
-    
-    // Configurar el estado inicial del interruptor según el tema actual.
-    toggleSwitch.checked = (currentTheme === 'dark');
-    // Actualizar la etiqueta del interruptor
-    updateToggleLabel(currentTheme);
-    
-    toggleSwitch.addEventListener('change', function() {
-        // Alternar entre 'light' y 'dark'
-        currentTheme = toggleSwitch.checked ? 'dark' : 'light';
-        htmlElement.setAttribute('data-bs-theme', currentTheme);
-        // Guardar la selección en localStorage
-        localStorage.setItem('theme', currentTheme);
-        // Actualizar el texto del label para reflejar la acción que se realizará en el siguiente clic.
-        updateToggleLabel(currentTheme);
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('themeToggleBtn');
+    if (!btn) return; // Si no existe, salimos sin errores
+  
+    const iconLight = document.getElementById('iconLight');
+    const iconDark  = document.getElementById('iconDark');
+    const html      = document.documentElement;
+  
+    // Estado inicial
+    let theme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-bs-theme', theme);
+    iconLight.classList.toggle('d-none', theme === 'dark');
+    iconDark.classList.toggle('d-none', theme === 'light');
+  
+    // Al hacer clic, alternar
+    btn.addEventListener('click', () => {
+      theme = (theme === 'light') ? 'dark' : 'light';
+      html.setAttribute('data-bs-theme', theme);
+      localStorage.setItem('theme', theme);
+      iconLight.classList.toggle('d-none');
+      iconDark.classList.toggle('d-none');
     });
-    
-    function updateToggleLabel(theme) {
-        const label = document.querySelector('label[for="themeToggleSwitch"]');
-        label.textContent = theme === 'light' ? 'Tema Oscuro' : 'Tema Claro';
-    }
-});
+  });
