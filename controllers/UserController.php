@@ -87,6 +87,37 @@ class UserController {
         }
     }
     
+
+
+
+    public function createUser($data) {
+        $db   = (new Database())->getConnection();
+        // Validaciones mínimas
+        if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
+            return ['success'=>false, 'message'=>'Datos incompletos'];
+        }
+        // Insert
+        $stmt = $db->prepare('INSERT INTO users (username,email,password,level_user) VALUES (:u,:e,:p,:l)');
+        $hash = password_hash($data['password'], PASSWORD_BCRYPT);
+        $stmt->bindParam(':u',$data['username']);
+        $stmt->bindParam(':e',$data['email']);
+        $stmt->bindParam(':p',$hash);
+        $stmt->bindParam(':l',$data['level_user'], PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            $id = $db->lastInsertId();
+            // Leer el nuevo registro
+            $new = $db->prepare('SELECT user_id,username,email,level_user,created_at,updated_at,img_url FROM users WHERE user_id=:id');
+            $new->bindParam(':id',$id,PDO::PARAM_INT);
+            $new->execute();
+            $user = $new->fetch(PDO::FETCH_ASSOC);
+            return ['success'=>true, 'user'=>$user];
+        } else {
+            return ['success'=>false,'message'=>'Error al insertar'];
+        }
+    }
+    
+
+
     
 
 }

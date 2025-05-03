@@ -43,5 +43,19 @@ switch ($action) {
     default:
         echo json_encode(["error" => "Acción no definida"]);
         break;
+
+
+        case 'create':
+            $data = json_decode(file_get_contents('php://input'), true)['userData'] ?? [];
+            $result = $userController->createUser($data);
+            if ($result['success']) {
+                echo json_encode(['success' => true, 'newUser' => $result['user']]);
+            } else {
+                echo json_encode(['success' => false, 'message' => $result['message']]);
+            }
+            break;
+        
+
+
 }
 exit();

@@ -37,21 +37,11 @@ $segment = explode('/', trim($uri, '/'))[0];
 
       <!-- Bloque derecho -->
       <div class="d-flex align-items-center">
-        <!-- Saludo y foto -->
-        <span class="navbar-text me-3">
-          Bienvenido, <?= htmlspecialchars($_SESSION['user']['username']); ?>
-        </span>
-        <?php if (!empty($_SESSION['user']['img_url'])): ?>
-          <img src="<?= BASE_URL . ltrim($_SESSION['user']['img_url'], '/')?>"
-               alt="Foto de usuario"
-               class="rounded-circle me-3"
-               style="width:32px;height:32px;object-fit:cover;">
-        <?php endif; ?>
 
         <!-- Toggle tema -->
         <button class="btn btn-outline-secondary me-3" id="themeToggleBtn" title="Cambiar tema">
-          <i class="bi bi-sun-fill fs-5" id="iconLight"></i>
-          <i class="bi bi-moon-fill fs-5 d-none" id="iconDark"></i>
+          <i class="bi bi-sun-fill fs-6" id="iconLight"></i>
+          <i class="bi bi-moon-fill fs-6 d-none" id="iconDark"></i>
         </button>
 
         <!-- Opciones -->
@@ -63,7 +53,13 @@ $segment = explode('/', trim($uri, '/'))[0];
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="optionsMenu">
             <li>
               <a class="dropdown-item" href="<?= BASE_URL ?>profile">
-                <i class="bi bi-person-circle me-1"></i> Perfil
+                
+        <?php if (!empty($_SESSION['user']['img_url'])): ?>
+          <img src="<?= BASE_URL . ltrim($_SESSION['user']['img_url'], '/')?>"
+               alt="Foto de usuario"
+               class="rounded-circle me-3"
+               style="width:32px;height:32px;object-fit:cover;">
+        <?php endif; ?> Perfil
               </a>
             </li>
             <li>

@@ -283,4 +283,41 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error en el handler de exportación PDF:", e);
       }
     });
+
+
+
+    // Al inicio de DOMContentLoaded
+const addUserBtn = document.getElementById('addUserBtn');
+const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+addUserBtn.addEventListener('click', () => addUserModal.show());
+
+// Al guardar nuevo usuario
+document.getElementById('saveNewUserBtn').addEventListener('click', () => {
+  const username = document.getElementById('new-username').value.trim();
+  const email = document.getElementById('new-email').value.trim();
+  const password = document.getElementById('new-password').value;
+  const levelNew    = parseInt(document.getElementById('new-level').value, 10);
+
+  fetch(BASE_URL + 'api/users.php?action=create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({userData: {username, email, password, level_user: levelNew}})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      alert('Error al crear usuario: ' + data.message);
+    } else {
+      table.addData([data.newUser]).then(()=>{
+        addUserModal.hide();
+      });
+    }
+  })
+  .catch(err => console.error('Error:', err));
+});
+
+
+
+
+    
 });

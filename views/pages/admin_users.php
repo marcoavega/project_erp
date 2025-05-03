@@ -1,70 +1,156 @@
 <?php
 // views/pages/admin_users.php
-// Verificar que la sesión esté iniciada; si no, redirigir al login.
+// Verificar sesión
 if (!isset($_SESSION['user'])) {
   header("Location: " . BASE_URL . "auth/login/");
   exit();
 }
+
+// Determinar segmento actual
+$uri = $_GET['url'] ?? 'admin_users';
+$segment = explode('/', trim($uri, '/'))[0];
+
 ob_start();
+
+// 1. Cargar niveles de la tabla level_user
+require_once __DIR__ . '/../../models/Database.php';
+$pdo = (new Database())->getConnection();
+$stmt = $pdo->query("SELECT id_level_user, description_level FROM levels_users ORDER BY level");
+$levels = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$username = htmlspecialchars($_SESSION['user']['username']);
+
+// Definición de items del menú
+$menuItems = [
+  'dashboard'   => ['icon' => 'house-fill',  'label' => 'Panel de Control'],
+  'admin_users' => ['icon' => 'people-fill', 'label' => 'Usuarios'],
+  'settings'    => ['icon' => 'gear-fill',   'label' => 'Configuración'],
+];
 ?>
 
-<div class="container-fluid p-0">
+<div class="container-fluid m-0 p-0">
   <div class="row g-0">
-    <!-- Sidebar -->
-    <nav class="col-md-2 d-md-block sidebar min-vh-100 m-0 p-0">
-      <ul class="nav flex-column">
-        <li class="nav-item">
-          <a class="nav-link text-body" href="<?php echo BASE_URL . 'dashboard'; ?>">
-            <i class="bi bi-house-fill me-2"></i> Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-body" href="<?php echo BASE_URL . 'admin_users'; ?>">
-            <i class="bi bi-people-fill me-2"></i> Usuarios
-          </a>
-        </li>
+    <!-- Sidebar md+ -->
+    <nav class="col-md-2 d-none d-md-block sidebar min-vh-100">
+      <ul class="nav flex-column pt-3">
+        <?php foreach ($menuItems as $route => $item): ?>
+          <li class="nav-item mb-2">
+            <a class="nav-link text-body d-flex align-items-center <?= $segment === $route ? 'active fw-bold' : '' ?>"
+              href="<?= BASE_URL . $route ?>">
+              <i class="bi bi-<?= $item['icon'] ?> me-2"></i>
+              <?= $item['label'] ?>
+            </a>
+          </li>
+        <?php endforeach; ?>
       </ul>
     </nav>
 
-
     <!-- Contenido principal -->
-    <main class="col-md-10 ms-sm-auto px-4 py-3">
+    <main class="col-12 col-md-10 px-4 py-3">
+      <!-- Dropdown móvil -->
+      <div class="d-md-none mb-3">
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="mobileMenuBtn" data-bs-toggle="dropdown">
+            <i class="bi bi-list me-1"></i> Menú
+          </button>
+          <ul class="dropdown-menu w-100" aria-labelledby="mobileMenuBtn">
+            <?php foreach ($menuItems as $route => $item): ?>
+              <li>
+                <a class="dropdown-item <?= $segment === $route ? 'active fw-bold' : '' ?>" href="<?= BASE_URL . $route ?>">
+                  <i class="bi bi-<?= $item['icon'] ?> me-1"></i>
+                  <?= $item['label'] ?>
+                </a>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+      </div>
+
       <?php if ($_SESSION['user']['level_user'] != 1): ?>
         <h2>Acceso Denegado</h2>
         <div class="alert alert-danger">No tienes permiso para ver esta página.</div>
       <?php else: ?>
-        <div class="mb-4">
-          <h2 class="mb-4 text-center text-md-start">Administración de Usuarios</h2>
+        <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+          <h2 class="mb-0">Administración de Usuarios</h2>
+          <span class="text-muted">Bienvenido, <?= $username ?>.</span>
         </div>
 
-        <div class="row mb-3">
-          <div class="col-12 d-flex flex-wrap justify-content-start justify-content-md-end">
-            <button id="exportCSVBtn" class="btn btn-outline-primary me-2 mb-2">Exportar a CSV</button>
-            <button id="exportExcelBtn" class="btn btn-outline-success me-2 mb-2">Exportar a Excel</button>
-            <button id="exportPDFBtn" class="btn btn-outline-danger me-2 mb-2">Exportar a PDF</button>
-            <button id="exportJSONBtn" class="btn btn-outline-secondary mb-2">Exportar a JSON</button>
+        <!-- Botones acción -->
+        <div class="row mb-3 g-2">
+          <div class="col-12 col-md-auto">
+            <button id="addUserBtn" class="btn btn-primary">Agregar Usuario</button>
+          </div>
+          <div class="col-12 col-md-auto">
+            <button id="exportCSVBtn" class="btn btn-outline-primary">Exportar Lista a CSV</button>
+          </div>
+          <div class="col-12 col-md-auto">
+            <button id="exportExcelBtn" class="btn btn-outline-success">Exportar Lista a Excel</button>
+          </div>
+          <div class="col-12 col-md-auto">
+            <button id="exportPDFBtn" class="btn btn-outline-danger">Exportar Lista a PDF</button>
+          </div>
+          <div class="col-12 col-md-auto">
+            <button id="exportJSONBtn" class="btn btn-outline-secondary">Exportar Lista a JSON</button>
           </div>
         </div>
 
         <!-- Buscador -->
-        <div class="row mb-3">
-          <div class="col-12">
-            <input type="text" id="table-search" class="form-control" placeholder="Buscar usuarios por nombre o email">
-          </div>
+        <div class="mb-3">
+          <input type="text" id="table-search" class="form-control" placeholder="Buscar usuarios por nombre o email">
         </div>
 
-        <!-- Contenedor para la tabla -->
-        <div class="row">
-          <div class="col-12">
-            <div id="users-table"></div>
-          </div>
-        </div>
+        <!-- Tabla de usuarios -->
+        <div id="users-table"></div>
 
-        <!-- Modals -->
+        <!-- Modals: Edit y Delete -->
         <?php
         include __DIR__ . '/../partials/modals/modal_edit_user.php';
         include __DIR__ . '/../partials/modals/modal_delete_user.php';
         ?>
+
+        <!-- Modal: Agregar Usuario -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Agregar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <form id="addUserForm">
+                  <div class="mb-3">
+                    <label for="new-username" class="form-label">Usuario</label>
+                    <input type="text" class="form-control" id="new-username" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="new-email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="new-email" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="new-password" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="new-password" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="new-level" class="form-label">Nivel</label>
+                    <select id="new-level" class="form-select" required>
+                      <?php foreach ($levels as $lvl): ?>
+                        <option value="<?= $lvl['id_level_user'] ?>">
+                          <?= htmlspecialchars($lvl['description_level']) ?>
+                        </option>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
+
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveNewUserBtn">Guardar Usuario</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       <?php endif; ?>
     </main>
   </div>
