@@ -1,17 +1,31 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// **Configuración de errores en PHP**
+// Se activan los mensajes de error para desarrollo, facilitando la detección de problemas.
+ini_set('display_errors', 1); // Muestra los errores en pantalla.
+ini_set('display_startup_errors', 1); // Muestra errores que ocurren durante el arranque de PHP.
+error_reporting(E_ALL); // Se configuran todos los niveles de error para reportar cualquier problema.
 
-define('BASE_URL', 'http://localhost/sistema6/');
+// **Definición de constantes globales**
+// Estas constantes se usan en todo el sistema para evitar redundancia y facilitar cambios futuros.
 
-define('APP_NAME','SISTEMA 6');
+// **URL Base del sistema**
+define('BASE_URL', 'http://localhost/sistema6/'); 
+// Define la URL base del sistema, útil para generar enlaces en la aplicación.
 
-define('DB_HOST','localhost');
-define('DB_NAME','sistema');
-define('DB_USER','root');
-define('DB_PASS','');
+// **Nombre de la aplicación**
+define('APP_NAME','SISTEMA 6'); 
+// Define el nombre del sistema, puede ser útil para mostrarlo en títulos y encabezados.
 
-define('APP_SESSION_NAME','sistema6_session');
+// **Credenciales de la Base de Datos**
+define('DB_HOST','localhost'); // Dirección del servidor de la base de datos.
+define('DB_NAME','sistema'); // Nombre de la base de datos usada por la aplicación.
+define('DB_USER','root'); // Usuario de la base de datos (en entornos de producción se recomienda cambiar esto).
+define('DB_PASS',''); // Contraseña del usuario de la base de datos (en producción nunca debe estar en código público).
 
-define('APP_SESSION_TIME','3600'); // 1 hour
+// **Configuración de la sesión**
+define('APP_SESSION_NAME','sistema6_session'); 
+// Define el nombre de la cookie de sesión, usado para evitar colisiones con otras aplicaciones en el mismo servidor.
+
+define('APP_SESSION_TIME','3600'); // 1 hora (3600 segundos) 
+// Establece la duración de la sesión, tras este tiempo inactivo el usuario debe volver a autenticarse.
+?>

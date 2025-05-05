@@ -50,3 +50,4 @@ if ($parts[0] == 'auth'){
 
 // Incluye el pie de página, donde pueden estar los scripts de cierre y otras configuraciones finales
 include __DIR__ . '/views/partials/footer.php';
+

@@ -26,3 +26,4 @@ RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 
 # Seguridad: Evita el listado de directorios cuando no hay un archivo index disponible
 Options -Indexes
+
