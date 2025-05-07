@@ -5,7 +5,7 @@ require_once 'config/config.php';
 // Inicia la sesión del usuario, asegurando que las variables de sesión estén disponibles en todas las páginas
 include __DIR__ . '/views/inc/session_start.php';
 
-// Incluye el archivo "head.php", que probablemente contiene la estructura del encabezado HTML (metadatos, enlaces a CSS, etc.)
+// Incluye el archivo "head.php", contiene la estructura del encabezado HTML (metadatos, enlaces a CSS, etc.)
 include __DIR__ . '/views/partials/head.php';
 
 // Obtiene la URL enviada en la petición GET y, si no se proporciona, por defecto carga 'login'

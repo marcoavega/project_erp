@@ -5,9 +5,9 @@
         style="z-index: 1000;">
   
   <!-- Ícono de sol (tema claro) -->
-  <i id="iconLight" class="bi bi-sun-fill fs-5"></i>
+  <i id="iconLight" class="bi bi-sun-fill fs-6"></i>
   
   <!-- Ícono de luna (tema oscuro), inicialmente oculto con d-none -->
-  <i id="iconDark"  class="bi bi-moon-fill fs-5 d-none"></i>
+  <i id="iconDark"  class="bi bi-moon-fill fs-6 d-none"></i>
 
 </button>

@@ -4,8 +4,6 @@
     <p class="mb-0">&copy; <?php echo date("Y"); ?> - Sistema. </p>
     <!-- Muestra el año actual dinámicamente con PHP, seguido del nombre del sistema -->
     
-    <p class="mb-0">Todos los derechos reservados.</p>
-    <!-- Mensaje estándar de derechos reservados sin margen inferior adicional -->
 </footer>
 
 <!-- Inclusión de bibliotecas JavaScript para funcionalidad del sistema -->

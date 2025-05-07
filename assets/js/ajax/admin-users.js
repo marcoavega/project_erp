@@ -1,77 +1,73 @@
-// **Evento que se ejecuta cuando el DOM ha sido completamente cargado**
-// `DOMContentLoaded` asegura que el código solo se ejecute cuando la página 
-// ha terminado de cargar, evitando errores por elementos que aún no están disponibles.
 document.addEventListener("DOMContentLoaded", function () {
-
-  // ------------------------------------------------------------------
-  // **Configuración de la Tabla de Usuarios usando Tabulator**
-  // Se busca el elemento HTML donde se mostrará la tabla de usuarios.
-  // Si el elemento no existe (por ejemplo, en otra página donde la tabla no se use),
-  // se detiene la ejecución de este código evitando errores innecesarios.
-  // ------------------------------------------------------------------
   var usersTableElement = document.getElementById("users-table");
-
-  // Si la tabla no está presente en la página, **se detiene la ejecución**.
   if (!usersTableElement) return;
 
-  var deleteUserID = null; // Variable global que almacenará el ID del usuario seleccionado para eliminación.
+  // Variable global para almacenar el ID del usuario a eliminar
+  var deleteUserID = null;
 
-  // ------------------------------------------------------------------
-  // **Inicialización de la tabla interactiva con Tabulator**
-  // Tabulator es una librería JavaScript que permite crear tablas dinámicas
-  // con funciones avanzadas como edición, eliminación y exportación de datos.
-  // ------------------------------------------------------------------
+  // Inicialización de Tabulator
   var table = new Tabulator("#users-table", {
-    index: "user_id", // Identificador único de cada usuario en la tabla.
-    ajaxURL: BASE_URL + "api/users.php?action=get", // Dirección de la API que proporciona los datos de usuarios.
-    ajaxConfig: "GET", // Método HTTP usado para recuperar los datos del servidor.
-    layout: "fitColumns", // Ajusta automáticamente el ancho de las columnas para que encajen en la pantalla.
-    responsiveLayout: "collapse", // Permite adaptar la tabla en pantallas pequeñas ocultando columnas menos importantes.
-    placeholder: "Cargando usuarios...", // Mensaje mostrado mientras se obtienen los datos del servidor.
-
-    // **Definición de las columnas de la tabla**
+    index: "user_id",
+    ajaxURL: BASE_URL + "api/users.php?action=get",
+    ajaxConfig: "GET",
+    layout: "fitColumns",
+    responsiveLayout: "collapse", // Permite que la tabla se adapte en pantallas pequeñas
+    placeholder: "Cargando usuarios...",
     columns: [
-      { title: "ID", field: "user_id", width: 70, sorter: "number" }, // Identificador único del usuario.
-      { title: "Usuario", field: "username", editor: "input" }, // Permite editar el nombre del usuario directamente en la tabla.
-      { title: "Email", field: "email", editor: "input" }, // Campo editable para modificar el correo electrónico.
+      { title: "ID", field: "user_id", width: 70, sorter: "number" },
+      { title: "Usuario", field: "username", editor: "input" },
+      { title: "Email", field: "email", editor: "input" },
       {
-        title: "Nivel", // Indica el nivel de acceso del usuario (Ejemplo: administrador, usuario estándar).
+        title: "Nivel",
         field: "level_user",
-        editor: "number", // Permite modificar el nivel del usuario ingresando un número.
-        hozAlign: "center", // Centra el contenido de esta columna.
+        editor: "number",
+        hozAlign: "center",
       },
       {
-        title: "Creado", // Fecha en la que se registró el usuario en el sistema.
+        title: "Creado",
         field: "created_at",
         formatter: function (cell) {
           var value = cell.getValue();
           var date = new Date(value);
-          if (isNaN(date.getTime())) return ""; // Si la fecha es inválida, devuelve una celda vacía.
-
-          // **Formato de fecha: DD/MM/YYYY**
+          if (isNaN(date.getTime())) {
+            return "";
+          }
           var day = date.getDate();
           var month = date.getMonth() + 1;
           var year = date.getFullYear();
-          return (day < 10 ? "0" + day : day) + "/" + (month < 10 ? "0" + month : month) + "/" + year;
+          return (
+            (day < 10 ? "0" + day : day) +
+            "/" +
+            (month < 10 ? "0" + month : month) +
+            "/" +
+            year
+          );
         },
       },
       {
-        title: "Actualizado", // Última modificación en los datos del usuario.
+        title: "Actualizado",
         field: "updated_at",
         formatter: function (cell) {
           var value = cell.getValue();
           var date = new Date(value);
-          if (isNaN(date.getTime())) return "";
-
+          if (isNaN(date.getTime())) {
+            return "";
+          }
           var day = date.getDate();
           var month = date.getMonth() + 1;
           var year = date.getFullYear();
-          return (day < 10 ? "0" + day : day) + "/" + (month < 10 ? "0" + month : month) + "/" + year;
+          return (
+            (day < 10 ? "0" + day : day) +
+            "/" +
+            (month < 10 ? "0" + month : month) +
+            "/" +
+            year
+          );
         },
       },
       {
-        title: "Acciones", // Botones para editar y eliminar usuarios.
-        responsive: false, // Siempre visible, incluso en pantallas pequeñas.
+        title: "Acciones",
+        responsive: false, // Siempre visible, sin colapsar
         hozAlign: "center",
         width: 150,
         formatter: function () {
@@ -83,46 +79,241 @@ document.addEventListener("DOMContentLoaded", function () {
           );
         },
         cellClick: function (e, cell) {
-          var rowData = cell.getRow().getData(); // Obtiene los datos del usuario que corresponde a la fila donde se hizo clic.
-
-          // **Si el usuario hace clic en "Editar"**, se abre el modal de edición.
+          var rowData = cell.getRow().getData();
+          // Botón para editar
           if (e.target.classList.contains("edit-btn")) {
             document.getElementById("edit-user-id").value = rowData.user_id;
             document.getElementById("edit-username").value = rowData.username;
             document.getElementById("edit-email").value = rowData.email;
             document.getElementById("edit-level").value = rowData.level_user;
-            var editModal = new bootstrap.Modal(document.getElementById("editUserModal"));
-            editModal.show(); // Se muestra el modal de edición.
+            var editModal = new bootstrap.Modal(
+              document.getElementById("editUserModal")
+            );
+            editModal.show();
           }
-
-          // **Si el usuario hace clic en "Eliminar"**, se almacena el ID del usuario y se muestra el modal de confirmación.
+          // Botón para eliminar: guardar el ID en la variable global
           if (e.target.classList.contains("delete-btn")) {
             deleteUserID = rowData.user_id;
-            var deleteModal = new bootstrap.Modal(document.getElementById("deleteUserModal"));
-            deleteModal.show(); // Se muestra el modal de eliminación.
+            var deleteModal = new bootstrap.Modal(
+              document.getElementById("deleteUserModal")
+            );
+            deleteModal.show();
           }
         },
       },
     ],
   });
 
-  // ------------------------------------------------------------------
-  // **Filtro de búsqueda en la tabla de usuarios**
-  // Permite al usuario escribir en un campo de búsqueda para encontrar usuarios
-  // de acuerdo con su nombre o correo electrónico.
-  // ------------------------------------------------------------------
+  // Buscador para filtrar la tabla por nombre o email
   var searchInput = document.getElementById("table-search");
-
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       var query = searchInput.value.toLowerCase();
       table.setFilter(function (data) {
         return (
-          data.username.toLowerCase().includes(query) || 
+          data.username.toLowerCase().includes(query) ||
           data.email.toLowerCase().includes(query)
         );
       });
     });
   }
+
+  // Botón de "Guardar cambios" del modal de edición
+  document
+    .getElementById("saveChangesBtn")
+    .addEventListener("click", function () {
+      var userID = document.getElementById("edit-user-id").value;
+      var username = document.getElementById("edit-username").value;
+      var email = document.getElementById("edit-email").value;
+      var level = document.getElementById("edit-level").value;
+
+      var updateData = {
+        user_id: parseInt(userID),
+        username: username,
+        email: email,
+        level_user: parseInt(level),
+      };
+
+      fetch(BASE_URL + "api/users.php?action=update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userData: updateData }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            alert("Error al actualizar usuario: " + data.message);
+          } else {
+            alert("Usuario actualizado correctamente");
+            table
+              .updateOrAddData([updateData])
+              .then(() => {
+                console.log("Registro actualizado en la tabla");
+              })
+              .catch((err) => {
+                console.error("Error actualizando registro:", err);
+              });
+            var modalEl = document.getElementById("editUserModal");
+            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+          }
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud AJAX:", error);
+        });
+    });
+
+  // Botón de confirmación del modal de eliminación
+  document
+    .getElementById("confirmDeleteBtn")
+    .addEventListener("click", function () {
+      if (!deleteUserID) return;
+      fetch(BASE_URL + "api/users.php?action=delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: parseInt(deleteUserID) }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            alert("Error al eliminar usuario: " + data.message);
+          } else {
+            alert("Usuario eliminado correctamente");
+            table
+              .deleteRow(deleteUserID)
+              .then(() => {
+                console.log("Registro eliminado");
+              })
+              .catch((err) => {
+                console.error("Error eliminando registro:", err);
+              });
+            deleteUserID = null;
+            var modalEl = document.getElementById("deleteUserModal");
+            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+          }
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud AJAX:", error);
+        });
+    });
+
+  // Botón de exportación a CSV
+  document
+    .getElementById("exportCSVBtn")
+    .addEventListener("click", function () {
+      table.download("csv", "usuarios.csv");
+    });
+
+  // Botón de exportación a Excel (omitiendo la columna 'img_url')
+  document
+    .getElementById("exportExcelBtn")
+    .addEventListener("click", function () {
+      const dataToExport = table.getData().map((row) => {
+        const { img_url, ...filteredRow } = row;
+        return filteredRow;
+      });
+
+      table.download("xlsx", "usuarios.xlsx", {
+        sheetName: "Reporte Usuarios",
+        documentProcessing: function (workbook) {
+          const sheet = workbook.Sheets["Reporte Usuarios"];
+          sheet["A1"].s = { font: { bold: true, color: { rgb: "FF0000" } } };
+          return workbook;
+        },
+        rows: dataToExport,
+      });
+    });
+
+  // Botón de exportación a JSON
+  document
+    .getElementById("exportJSONBtn")
+    .addEventListener("click", function () {
+      table.download("json", "usuarios.json");
+    });
+
+  document
+    .getElementById("exportPDFBtn")
+    .addEventListener("click", function () {
+      console.log("Botón de exportación PDF presionado.");
+      try {
+        if (!table) {
+          console.error("El objeto 'table' no está definido.");
+          return;
+        }
+
+        table.download("pdf", "usuarios.pdf", {
+          orientation: "landscape", // Horizontal
+          title: "Lista de Usuarios",
+          autoTable: {
+            styles: {
+              fontSize: 8,
+              cellPadding: 2,
+            },
+            margin: { top: 30, left: 5, right: 5 },
+            headStyles: {
+              fillColor: [22, 160, 133],
+              textColor: 255,
+              fontStyle: "bold",
+              halign: "center",
+            },
+            theme: "striped",
+            // Se especifican únicamente las columnas deseadas en el PDF (sin la de imagen).
+            columns: [
+              { header: "ID", dataKey: "user_id" },
+              { header: "Usuario", dataKey: "username" },
+              { header: "Email", dataKey: "email" },
+              { header: "Nivel", dataKey: "level_user" },
+              { header: "Creado", dataKey: "created_at" },
+              { header: "Actualizado", dataKey: "updated_at" },
+            ],
+            didDrawPage: function (data) {
+              var doc = data.doc;
+              doc.setFontSize(14);
+              doc.text(
+                "Reporte de Usuarios - Generado: " +
+                  new Date().toLocaleDateString(),
+                10,
+                15
+              );
+            },
+          },
+        });
+      } catch (e) {
+        console.error("Error en el handler de exportación PDF:", e);
+      }
+    });
+
+
+
+    // Al inicio de DOMContentLoaded
+const addUserBtn = document.getElementById('addUserBtn');
+const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+addUserBtn.addEventListener('click', () => addUserModal.show());
+
+// Al guardar nuevo usuario
+document.getElementById('saveNewUserBtn').addEventListener('click', () => {
+  const username = document.getElementById('new-username').value.trim();
+  const email = document.getElementById('new-email').value.trim();
+  const password = document.getElementById('new-password').value;
+  const levelNew    = parseInt(document.getElementById('new-level').value, 10);
+
+  fetch(BASE_URL + 'api/users.php?action=create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({userData: {username, email, password, level_user: levelNew}})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) {
+      alert('Error al crear usuario: ' + data.message);
+    } else {
+      table.addData([data.newUser]).then(()=>{
+        addUserModal.hide();
+      });
+    }
+  })
+  .catch(err => console.error('Error:', err));
+});
 
 });
